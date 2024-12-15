@@ -15,7 +15,7 @@ wp-content/debug.log
 wp-content/plugins/mail-masta/
 wp-json/wp/v2/users
 wp-json/?rest_route=/wp/v2/users/
-wp-json/?rest_route=/wp/v2/users/n
+wp-json/?rest_route=/wp/v2/users/1
 index.php?rest_route=/wp-json/wp/v2/users
 index.php?rest_route=/wp/v2/users
 wp-content/uploads/wp-file-manager-pro/fm_backup
