@@ -1,4 +1,4 @@
-#!/home/codespace/.python/current/bin/python
+#!/bin/python
 
 #--------------------------#
 #  libraries importation   #
