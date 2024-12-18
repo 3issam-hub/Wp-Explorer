@@ -25,31 +25,30 @@ Wp-Explorer is a Python-based tool designed to explore WordPress websites for se
 ## Installation
 
 1. Clone this repository:
-   `bash
+   `
    git clone https://github.com/your-username/Wp-Explorer.git
    cd Wp-Explorer
    pip install -r requirements.txt
-`
+   python3 Wp-Explorer https://example.com/
+   `
 
-4. Ensure a file named paths.txt is in the same directory. This file should contain the paths you want to check (one path per line).
-
-
+> Ensure a file named paths.txt is in the same directory. This file should contain the paths you want to check (one path per line).
 
 
 ---
 
-Usage
+## Usage
 
 Run the script with the following syntax:
 
 python3 Wp-Explorer.py [Website] [Options]
 
-Arguments
+### Arguments
 
 Website: The URL of the target WordPress site (e.g., http://example.com).
 
 
-Options
+## Options
 
 -h, --help: Display the help menu.
 
@@ -58,23 +57,23 @@ Options
 -m <method>, --method <method>: Specify the HTTP method to use (GET or POST). Defaults to GET.
 
 
-Example Commands
+## Example Commands
 
-Basic Scan:
+### Basic Scan:
 
-python3 Wp-Explorer.py http://example.com
+`python3 Wp-Explorer.py http://example.com`
 
-Scan with POST Method:
+### Scan with POST Method:
 
-python3 Wp-Explorer.py http://example.com -m POST
+`python3 Wp-Explorer.py http://example.com -m POST`
 
-Save Results to File:
+### Save Results to File:
 
-python3 Wp-Explorer.py http://example.com -o results.txt
+`python3 Wp-Explorer.py http://example.com -o results.txt`
 
-Display Help:
+### Display Help:
 
-python3 Wp-Explorer.py -h
+`python3 Wp-Explorer.py -h`
 
 
 
