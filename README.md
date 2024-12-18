@@ -30,7 +30,7 @@
 ## Installation
 
 <br>
-```bash
+```BASH
 git clone https://github.com/your-username/Wp-Explorer.git
 cd Wp-Explorer
 pip install -r requirements.txt
