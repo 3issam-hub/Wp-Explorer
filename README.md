@@ -52,7 +52,7 @@ python3 Wp-Explorer.py [Website] [Options]
 Website: The URL of the target WordPress site (e.g., http://example.com).
 
 
-## Options
+### Options
 
 -h, --help: Display the help menu.
 
