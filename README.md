@@ -115,7 +115,7 @@ Example Output
 
 ### License
 
-This project is licensed under the MIT License.
+This project is licensed under the **[MIT License](https://github.com/aws/mit-0)**.
 
 ### Contribution
 
