@@ -14,7 +14,7 @@
 - Supports GET and POST HTTP methods.
 - Graceful handling of network errors and interruptions.
 
----
+
 
 ## Requirements
 
@@ -24,7 +24,7 @@
   - colorama
   - pyfiglet
 
----
+
 
 ## Installation
 
@@ -39,7 +39,7 @@
 > Ensure a file named paths.txt is in the same directory. This file should contain the paths you want to check (one path per line).
 
 
----
+ 
 
 ## Usage
 
@@ -81,7 +81,7 @@ Website: The URL of the target WordPress site (e.g., http://example.com).
 
 
 
----
+ 
 
 How It Works
 
@@ -114,7 +114,7 @@ If specified with -o, results are saved to the provided filename.
 
 
 
----
+ 
 
 Example Output
 
@@ -132,28 +132,28 @@ http://example.com/wp-admin/ -> 403
 http://example.com/non-existent -> 404
 
 
----
+ 
 
 License
 
 This project is licensed under the MIT License.
 
 
----
+ 
 
 Contribution
 
 Contributions are welcome! Feel free to open an issue or submit a pull request.
 
 
----
+ 
 
 Disclaimer
 
 This tool is intended for educational and ethical purposes only. Ensure you have proper authorization before scanning any website. Misuse of this tool may result in legal consequences. Use responsibly.
 
 
----
+ 
 
 Author
 
