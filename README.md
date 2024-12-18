@@ -101,13 +101,11 @@ Reads paths from paths.txt and sends HTTP requests to the target website.
 
 Outputs the status code for each path:
 
-200: Path exists.
+  - 200: Path exists.
+  - 404: Path does not exist.
+  - Other codes (e.g., 403, 401): Restricted access or errors.
 
-404: Path does not exist.
-
-Other codes (e.g., 403, 401): Restricted access or errors.
-
-
+<br>
 
 
 3. Saving Results:
