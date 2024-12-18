@@ -28,8 +28,9 @@
 
 
 ## Installation
-<code>
+
 1. Clone this repository:<br>
+<code>
 `
 git clone https://github.com/your-username/Wp-Explorer.git
 cd Wp-Explorer
