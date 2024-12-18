@@ -1,6 +1,9 @@
 # Wp-Explorer
-Wp-Explorer is a Python-based tool designed to explore WordPress websites for sensitive paths and endpoints. It checks the response status codes for these paths, allowing you to identify potential issues or points of interest. Wp-Explorer supports both GET and POST HTTP methods for its requests.
 
+<p>
+  Wp-Explorer is a Python-based tool designed to explore WordPress websites for sensitive paths and endpoints. It checks the response status codes for
+  these paths, allowing you to identify potential issues or points of interest. Wp-Explorer supports both GET and POST HTTP methods for its requests.
+</p>
 ## Features
 
 - Detects if a website is running WordPress.
