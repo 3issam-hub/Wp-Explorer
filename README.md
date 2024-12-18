@@ -1,4 +1,4 @@
-![Tux, the Linux mascot](/assets/images/tux.png)
+![Wp-Explorer-logo](/assets/logo.png)
 # Wp-Explorer
 
 <p>
