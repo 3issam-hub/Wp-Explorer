@@ -97,9 +97,6 @@ The tool checks for key WordPress-specific paths **(wp-login.php, wp-admin/, wp-
 
 If specified with -o, results are saved to the provided filename.
 
-### Example Output:
-![Wp-Explorer-logo](/assets/example)
-
 
 ### 📝 License
 
