@@ -17,23 +17,12 @@
 - Graceful handling of network errors and interruptions.
 
 
-
-## Requirements
-
-- Python 3.6+
-- Libraries:
-  - requests
-  - colorama
-  - pyfiglet
-
-
-
 ## 🛠️ Installation
 
 <br>
 
 ```bash
-git clone https://github.com/your-username/Wp-Explorer.git
+git clone https://github.com/3issam-hub/Wp-Explorer.git
 cd Wp-Explorer
 pip install -r requirements.txt
 python3 Wp-Explorer https://example.com/
