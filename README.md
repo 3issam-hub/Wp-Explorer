@@ -103,16 +103,9 @@ The tool checks for key WordPress-specific paths **(wp-login.php, wp-admin/, wp-
     - 404: Path does not exist.
     - Other codes (e.g., 403, 401): Restricted access or errors.
 
-<br>
-
-
 3. Saving Results:
 
 If specified with -o, results are saved to the provided filename.
-
-
-
-
 
  
 
@@ -132,7 +125,9 @@ http://example.com/wp-admin/ -> 403
 http://example.com/non-existent -> 404
 
 
- 
+>Disclaimer
+>
+>This tool is intended for educational and ethical purposes only. Ensure you have proper authorization before scanning any website. Misuse of this tool may result in legal consequences. Use responsibly.
 
 License
 
