@@ -159,4 +159,4 @@ This tool is intended for educational and ethical purposes only. Ensure you have
 Author
 
 Issam Beniysa
-Feel free to connect with me for suggestions or questions!
+Feel free to connect with **[me](https://issambeniysa.site)** for suggestions or questions!
