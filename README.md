@@ -109,7 +109,7 @@ Contributions are welcome! Feel free to open an issue or submit a pull request.
 >
 >This tool is intended for educational and ethical purposes only. Ensure you have proper authorization before scanning any website. Misuse of this tool may result in legal consequences. Use responsibly.
 
-### Author
+## Author
 
 **Issam Beniysa**
 Feel free to connect with **[me](https://issambeniysa.site)** for suggestions or questions!
