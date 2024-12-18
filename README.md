@@ -1,3 +1,4 @@
+![Tux, the Linux mascot](/assets/images/tux.png)
 # Wp-Explorer
 
 <p>
@@ -28,12 +29,12 @@
 
 ## Installation
 
-1. Clone this repository:
+1. Clone this repository:<br>
    `
-   git clone https://github.com/your-username/Wp-Explorer.git<br>
-   cd Wp-Explorer<br>
-   pip install -r requirements.txt<br>
-   python3 Wp-Explorer https://example.com/<br>
+   git clone https://github.com/your-username/Wp-Explorer.git
+   cd Wp-Explorer
+   pip install -r requirements.txt
+   python3 Wp-Explorer https://example.com/
    `
 
 > Ensure a file named paths.txt is in the same directory. This file should contain the paths you want to check (one path per line).
