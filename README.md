@@ -110,48 +110,22 @@ If specified with -o, results are saved to the provided filename.
  
 
 Example Output
-
-Wp-Explorer
-By Issam_Beniysa
-
-Checking if the website is running WordPress...
-
-Yes, the website is running WordPress :) .
-
-Checking paths...
-
-http://example.com/wp-login.php -> 200
-http://example.com/wp-admin/ -> 403
-http://example.com/non-existent -> 404
+![Wp-Explorer-logo](/assets/example)
 
 
+### License
+
+This project is licensed under the MIT License.
+
+### Contribution
+
+Contributions are welcome! Feel free to open an issue or submit a pull request.
 
 >Disclaimer
 >
 >This tool is intended for educational and ethical purposes only. Ensure you have proper authorization before scanning any website. Misuse of this tool may result in legal consequences. Use responsibly.
 
-License
+#### Author
 
-This project is licensed under the MIT License.
-
-
- 
-
-Contribution
-
-Contributions are welcome! Feel free to open an issue or submit a pull request.
-
-
- 
-
-Disclaimer
-
-This tool is intended for educational and ethical purposes only. Ensure you have proper authorization before scanning any website. Misuse of this tool may result in legal consequences. Use responsibly.
-
-
- 
-
-Author
-
-Issam Beniysa
+**Issam Beniysa**
 Feel free to connect with **[me](https://issambeniysa.site)** for suggestions or questions!
