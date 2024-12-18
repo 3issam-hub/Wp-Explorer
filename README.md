@@ -91,7 +91,7 @@ Website: The URL of the target WordPress site (e.g., http://example.com).
 
 1. WordPress Detection:
 
-The tool checks for key WordPress-specific paths *(wp-login.php, wp-admin/, wp-content/)* to verify if the target website is running WordPress.
+The tool checks for key WordPress-specific paths **(wp-login.php, wp-admin/, wp-content/)** to verify if the target website is running WordPress.
 
 
 
