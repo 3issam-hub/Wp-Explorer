@@ -28,15 +28,15 @@
 
 
 ## Installation
-
+<code>
 1. Clone this repository:<br>
-   `
-   git clone https://github.com/your-username/Wp-Explorer.git
-   cd Wp-Explorer
-   pip install -r requirements.txt
-   python3 Wp-Explorer https://example.com/
-   `
-
+`
+git clone https://github.com/your-username/Wp-Explorer.git
+cd Wp-Explorer
+pip install -r requirements.txt
+python3 Wp-Explorer https://example.com/
+`
+</code>
 > Ensure a file named paths.txt is in the same directory. This file should contain the paths you want to check (one path per line).
 
 
@@ -84,7 +84,7 @@ Website: The URL of the target WordPress site (e.g., http://example.com).
 
  
 
-How It Works
+## How It Works
 
 1. WordPress Detection:
 
