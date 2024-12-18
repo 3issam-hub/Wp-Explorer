@@ -23,7 +23,7 @@ def art():
         if line.strip():
             print(random.choice(colors) + line)
     print(Style.BRIGHT + Style.RESET_ALL)
-    print(Fore.MAGENTA + '                                                 By Issam_Beniysa\n\n\n')
+    print(Fore.RED + '                                                 By Issam_Beniysa\n\n\n')
 
 #------------------#
 #  Help And Menu   #
@@ -33,8 +33,9 @@ def help():
     if '-h' in sys.argv or '--help' in sys.argv:
         print(Fore.CYAN + "{Usage} : python3 Wp_Explorer.py [Website] [Options] \n\n")
         print(Fore.CYAN + "{Options} : \n")
-        print(Fore.CYAN + "  -h, \t--help\t\t\tShow this help message and exit\n")
-        print(Fore.CYAN + "  -o, \t--output-file\t\tTo save result in a specific file\n")
+        print(Fore.CYAN + "  -h, \t--help\t\tShow this help message and exit\n")
+        print(Fore.CYAN + "  -o, \t--output\tTo save result in a specific file\n")
+        print(Fore.CYAN + "  -m, \t--method\tTo Specify the HTTP method to use (GET or POST). Default is GET\n")
         sys.exit(0)
 
 #-----------------#
@@ -58,11 +59,28 @@ def save_file(results):
             print(Fore.RED + f"Error: Unable to save results. {str(e)}")
             sys.exit(1)
 
+#------------------#
+#  Parse Method    #
+#------------------#
+
+def get_method_from_args():
+    if '-m' in sys.argv or '--method' in sys.argv:
+        try:
+            index = sys.argv.index('-m') if '-m' in sys.argv else sys.argv.index('--method')
+            method = sys.argv[index + 1].upper() 
+            if method not in ["GET", "POST"]:
+                raise ValueError("Invalid method. Only GET and POST are supported.")
+            return method
+        except (IndexError, ValueError) as e:
+            print(Fore.RED + f"Error: {str(e)}")
+            sys.exit(1)
+    return "GET"
+
 #----------------#
 #  Check Paths   #
 #----------------#
 
-def check_paths(website, paths):
+def check_paths(website, paths, method="GET"):
     if not website.endswith('/'):
         website += '/'
 
@@ -72,7 +90,10 @@ def check_paths(website, paths):
         for path in paths:
             full_url = website + path
             try:
-                response = requests.get(full_url, timeout=5)
+                if method == "POST":
+                    response = requests.get(full_url, timeout=5)
+                else:
+                    response = requests.get(full_url, timeout=5)
                 status_code = response.status_code
 
                 if status_code == 200:
@@ -90,8 +111,8 @@ def check_paths(website, paths):
                 sys.stdout.flush()
 
     except KeyboardInterrupt:
-        print(Fore.RED + "\nExiting... Saving results before exit.")
-        return results  # Return the results gathered so far
+        print(Fore.RED + "\nExiting...........................!")
+        return results
 
     return results
 
@@ -158,6 +179,6 @@ if __name__ == "__main__":
     try:
         results = check_paths(website, paths)
     except KeyboardInterrupt:
-        results = check_paths(website, paths)  # Ensure partial results are collected
+        results = check_paths(website, paths)
 
     save_file(results)
