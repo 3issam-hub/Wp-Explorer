@@ -105,7 +105,7 @@ This project is licensed under the **[MIT License](https://github.com/aws/mit-0)
 
 Contributions are welcome! Feel free to open an issue or submit a pull request.
 
->Disclaimer
+>⚠️ Disclaimer
 >
 >This tool is intended for educational and ethical purposes only. Ensure you have proper authorization before scanning any website. Misuse of this tool may result in legal consequences. Use responsibly.
 
