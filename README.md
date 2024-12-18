@@ -47,11 +47,11 @@ Website: The URL of the target WordPress site (e.g., http://example.com).
 
 ### Options
 
--h,             --help:                           Display the help menu.
+-h,--help:Display the help menu.
 
--o <filename>,  --output-file <filename>:         Save the results to a specified file.
+-o <filename>,--output-file <filename>:Save the results to a specified file.
 
--m <method>,    --method <method>:                Specify the HTTP method to use (GET or POST). Defaults to GET.
+-m <method>,--method <method>:Specify the HTTP method to use (GET or POST). Defaults to GET.
 
 
 ## 📚 CLI Example
