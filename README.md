@@ -30,13 +30,16 @@
 ## Installation
 
 <br>
+
 ```bash
 git clone https://github.com/your-username/Wp-Explorer.git
 cd Wp-Explorer
 pip install -r requirements.txt
 python3 Wp-Explorer https://example.com/
 ```
+
 <br>
+
 > Ensure a file named paths.txt is in the same directory. This file should contain the paths you want to check (one path per line).
 
 
