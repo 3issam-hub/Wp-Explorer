@@ -14,6 +14,7 @@
 - Allows saving results to a file.
 - Supports GET and POST HTTP methods.
 - Graceful handling of network errors and interruptions.
+- etc..
 
 
 ## 🛠️ Installation
@@ -71,7 +72,6 @@ Website: The URL of the target WordPress site (e.g., http://example.com).
 ### Display Help:
 
 `python3 Wp-Explorer.py -h`
-
 
 
  
