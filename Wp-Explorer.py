@@ -76,6 +76,22 @@ def get_method_from_args():
             sys.exit(1)
     return "GET"
 
+#--------------------#
+#  Handle Site List  #
+#--------------------#
+
+def handle_site_list(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            websites = [line.strip() for line in file if line.strip()]
+        return websites
+    except FileNotFoundError:
+        print(Fore.RED + f"Error: File '{file_path}' not found.")
+        sys.exit(1)
+    except IOError as e:
+        print(Fore.RED + f"Error: Unable to read file '{file_path}'. {str(e)}")
+        sys.exit(1)
+
 #----------------#
 #  Check Paths   #
 #----------------#
@@ -153,32 +169,49 @@ if __name__ == "__main__":
     help()
 
     if len(sys.argv) < 2:
-        print(Fore.RED + "Error: Please provide the website URL as an argument.")
+        print(Fore.RED + "Error: Please provide the website URL or site list file as an argument.")
         print(Fore.YELLOW + "Usage: python3 Wp-Explorer.py http://example.com\n")
         sys.exit(1)
 
-    website = sys.argv[1].strip()
+    website = None
+    site_list = None
+
+    
+    if '-l' in sys.argv or '--site-list' in sys.argv:
+        try:
+            index = sys.argv.index('-l') if '-l' in sys.argv else sys.argv.index('--site-list')
+            site_list_file = sys.argv[index + 1]
+            site_list = handle_site_list(site_list_file)
+        except IndexError:
+            print(Fore.RED + "Error: Missing filename for site list. Use -l <filename>")
+            sys.exit(1)
+    else:
+        website = sys.argv[1].strip()
+
 
     if not os.path.exists('paths.txt'):
         print(Fore.RED + "Error: 'paths.txt' file is missing. Please add it to the same directory.\n")
         sys.exit(1)
 
-    print(Fore.BLUE + "\nChecking if the website is running WordPress...\n")
-    if is_wordpress(website):
-        print(Fore.GREEN + "Yes, the website is running WordPress :) .\n")
-    else:
-        print(Fore.RED + "No, the website does not appear to be running WordPress :( .\n")
 
-    def read_paths(file_path):
-        with open(file_path, 'r') as file:
-            return [line.strip() for line in file if line.strip()]
+    websites = [website] if website else site_list
+    if not os.path.exists('paths.txt'):
+        print(Fore.RED + "Error: 'paths.txt' file is missing. Please add it to the same directory.\n")
+        sys.exit(1)
 
-    paths = read_paths('paths.txt')
-    print(Fore.BLUE + "\nChecking paths...\n")
-    
-    try:
-        results = check_paths(website, paths)
-    except KeyboardInterrupt:
-        results = check_paths(website, paths)
+    paths = handle_site_list('paths.txt')
+    for site in websites:
+        print(Fore.BLUE + f"\nChecking if {site} is running WordPress...\n")
+        if is_wordpress(site):
+            print(Fore.GREEN + f"Yes, {site} is running WordPress :) .\n")
+        else:
+            print(Fore.RED + f"No, {site} does not appear to be running WordPress :( .\n")
+
+        print(Fore.BLUE + f"\nChecking paths for {site}...\n")
+        try:
+            results = check_paths(site, paths, method=get_method_from_args())
+        except KeyboardInterrupt:
+            print(Fore.RED + "\nOperation interrupted by user.")
+            sys.exit(1)
 
     save_file(results)
