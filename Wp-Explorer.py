@@ -1,5 +1,7 @@
 #!/bin/python
 
+#!/bin/python
+
 #--------------------------#
 #  libraries importation   #
 #--------------------------#
@@ -36,6 +38,7 @@ def help():
         print(Fore.CYAN + "  -h, \t--help\t\tShow this help message and exit\n")
         print(Fore.CYAN + "  -o, \t--output\tTo save result in a specific file\n")
         print(Fore.CYAN + "  -m, \t--method\tTo Specify the HTTP method to use (GET or POST). Default is GET\n")
+        print(Fore.CYAN + "  -l, \t--site-list\tProvide a list of websites from a file\n")
         sys.exit(0)
 
 #-----------------#
@@ -106,10 +109,7 @@ def check_paths(website, paths, method="GET"):
         for path in paths:
             full_url = website + path
             try:
-                if method == "POST":
-                    response = requests.get(full_url, timeout=5)
-                else:
-                    response = requests.get(full_url, timeout=5)
+                response = requests.post(full_url, timeout=5) if method == "POST" else requests.get(full_url, timeout=5)
                 status_code = response.status_code
 
                 if status_code == 200:
@@ -127,7 +127,7 @@ def check_paths(website, paths, method="GET"):
                 sys.stdout.flush()
 
     except KeyboardInterrupt:
-        print(Fore.RED + "\nExiting...........................!")
+        print(Fore.RED + "\nExiting...")
         return results
 
     return results
@@ -154,9 +154,6 @@ def is_wordpress(website):
                 return True
         except requests.RequestException:
             continue
-        except KeyboardInterrupt:
-            print(Fore.RED + "\nExiting.................................!")
-            sys.exit(0)
 
     return False
 
@@ -176,7 +173,6 @@ if __name__ == "__main__":
     website = None
     site_list = None
 
-    
     if '-l' in sys.argv or '--site-list' in sys.argv:
         try:
             index = sys.argv.index('-l') if '-l' in sys.argv else sys.argv.index('--site-list')
@@ -188,18 +184,14 @@ if __name__ == "__main__":
     else:
         website = sys.argv[1].strip()
 
-
-    if not os.path.exists('paths.txt'):
-        print(Fore.RED + "Error: 'paths.txt' file is missing. Please add it to the same directory.\n")
-        sys.exit(1)
-
-
-    websites = [website] if website else site_list
     if not os.path.exists('paths.txt'):
         print(Fore.RED + "Error: 'paths.txt' file is missing. Please add it to the same directory.\n")
         sys.exit(1)
 
     paths = handle_site_list('paths.txt')
+    websites = site_list if site_list else [website]
+
+    all_results = []
     for site in websites:
         print(Fore.BLUE + f"\nChecking if {site} is running WordPress...\n")
         if is_wordpress(site):
@@ -210,8 +202,9 @@ if __name__ == "__main__":
         print(Fore.BLUE + f"\nChecking paths for {site}...\n")
         try:
             results = check_paths(site, paths, method=get_method_from_args())
+            all_results.extend(results)
         except KeyboardInterrupt:
             print(Fore.RED + "\nOperation interrupted by user.")
             sys.exit(1)
 
-    save_file(results)
+    save_file(all_results)
