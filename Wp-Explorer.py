@@ -1,7 +1,5 @@
 #!/bin/python
 
-#!/bin/python
-
 #--------------------------#
 #  libraries importation   #
 #--------------------------#
