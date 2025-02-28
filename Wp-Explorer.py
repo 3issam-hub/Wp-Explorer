@@ -10,6 +10,17 @@ import pyfiglet
 import random
 import sys
 import os
+import re
+import time
+import json
+
+#--------------------------#
+#      Configuration       #
+#--------------------------#
+
+# you can change the both numbers for the numbers you want
+MAX_USERS_TO_CHECK = 10
+REQUEST_DELAY = 1 
 
 #--------#
 #  ART   #
@@ -37,6 +48,8 @@ def help():
         print(Fore.CYAN + "  -o, \t--output\tTo save result in a specific file\n")
         print(Fore.CYAN + "  -m, \t--method\tTo Specify the HTTP method to use (GET or POST). Default is GET\n")
         print(Fore.CYAN + "  -l, \t--site-list\tProvide a list of websites from a file\n")
+        print(Fore.CYAN + "  -v, \t--version\tDetect WordPress version\n")
+        print(Fore.CYAN + "  -u, \t--users\t\tEnumerate user accounts\n")
         sys.exit(0)
 
 #-----------------#
@@ -50,9 +63,18 @@ def save_file(results):
             output_file = sys.argv[index + 1]
 
             with open(output_file, 'w') as file:
-                for url, status in results:
-                    file.write(f"{url} -> {status}\n")
+                for site in all_results:
+                    file.write(f"\nSite: {site['url']}\n")
+                    file.write(f"WordPress: {'Yes' if site['is_wordpress'] else 'No'}\n")
+                    if site['version']:
+                        file.write(f"Version: {site['version']}\n")
+                    if site['users']:
+                        file.write(f"Users: {', '.join(site['users'])}\n")
+                    file.write("Paths:\n")
+                    for path in site['paths']:
+                        file.write(f"  {path[0]} -> {path[1]}\n")
             print(Fore.GREEN + f"Results saved to {output_file}")
+
         except IndexError:
             print(Fore.RED + "Error: Missing filename for output. Use -o <filename>")
             sys.exit(1)
@@ -76,6 +98,57 @@ def get_method_from_args():
             print(Fore.RED + f"Error: {str(e)}")
             sys.exit(1)
     return "GET"
+
+#---------------------#
+#  Version detection  #
+#---------------------#
+
+def get_wordpress_version(website):
+    try:
+        response = requests.get(website)
+        if response.status_code == 200:
+            match = re.search(r'<meta name="generator" content="WordPress (\d+\.\d+\.?\d*)"', response.text)
+            if match:
+                return match.group(1)
+
+        response = requests.get(f"{website}readme.html")
+        if response.status_code == 200:
+            match = re.search(r'Version (\d+\.\d+)', response.text)
+            if match:
+                return match.group(1)
+
+        response = requests.get(f"{website}feed/")
+        if response.status_code == 200:
+            match = re.search(r'<generator>https://wordpress.org/\?v=(\d+\.\d+\.\d+)</generator>', response.text)
+            if match:
+                return match.group(1)
+
+        return "Not detected"
+    except requests.RequestException:
+        return "Error checking version"
+
+#---------------------#
+#  User Enumeration   #
+#---------------------#
+
+def enumerate_users(website):
+    users = set()
+    try:
+        for user_id in range(1, MAX_USERS_TO_CHECK + 1):
+            time.sleep(REQUEST_DELAY)
+            url = f"{website}?author={user_id}"
+            response = requests.get(url, allow_redirects=False)
+            
+            if 300 <= response.status_code < 400:
+                redirect = response.headers.get('Location', '')
+                username = redirect.strip('/').split('/')[-1]
+                if username.isnumeric():
+                    continue
+                users.add(username)
+                print(Fore.GREEN + f"Found user: {username}")
+    except Exception as e:
+        print(Fore.RED + f"User enumeration error: {str(e)}")
+    return list(users)
 
 #--------------------#
 #  Handle Site List  #
@@ -103,31 +176,25 @@ def check_paths(website, paths, method="GET"):
 
     results = []
 
-    try:
-        for path in paths:
-            full_url = website + path
-            try:
-                response = requests.post(full_url, timeout=5) if method == "POST" else requests.get(full_url, timeout=5)
-                status_code = response.status_code
+    for path in paths:
+        full_url = website + path
+        try:
+            response = requests.post(full_url, timeout=5) if method == "POST" else requests.get(full_url, timeout=5)
+            status_code = response.status_code
 
-                if status_code == 200:
-                    print(Fore.GREEN + f"{full_url} -> {status_code}")
-                elif status_code == 404:
-                    print(Fore.RED + f"{full_url} -> {status_code}")
-                else:
-                    print(Fore.YELLOW + f"{full_url} -> {status_code}")
+            if status_code == 200:
+                print(Fore.GREEN + f"{full_url} -> {status_code}")
+            elif status_code == 404:
+                print(Fore.RED + f"{full_url} -> {status_code}")
+            else:
+                print(Fore.YELLOW + f"{full_url} -> {status_code}")
                 results.append((full_url, status_code))
                 sys.stdout.flush()
 
-            except requests.RequestException as e:
-                print(Fore.RED + f"{full_url} -> Error: {str(e)}")
-                results.append((full_url, f"Error: {str(e)}"))
-                sys.stdout.flush()
-
-    except KeyboardInterrupt:
-        print(Fore.RED + "\nExiting...")
-        return results
-
+        except requests.RequestException as e:
+            print(Fore.RED + f"{full_url} -> Error: {str(e)}")
+            results.append((full_url, f"Error: {str(e)}"))
+            sys.stdout.flush()
     return results
 
 #--------------------------#
@@ -190,19 +257,45 @@ if __name__ == "__main__":
     websites = site_list if site_list else [website]
 
     all_results = []
-    for site in websites:
-        print(Fore.BLUE + f"\nChecking if {site} is running WordPress...\n")
-        if is_wordpress(site):
-            print(Fore.GREEN + f"Yes, {site} is running WordPress :) .\n")
-        else:
-            print(Fore.RED + f"No, {site} does not appear to be running WordPress :( .\n")
+    try:
+        for site in websites:
+            site_data = {
+                'url': site,
+                'is_wordpress': False,
+                'version': None,
+                'users': [],
+                'paths': []
+            }
+            print(Fore.BLUE + f"\nChecking if {site} is running WordPress...\n")
+            if is_wordpress(site):
+                site_data['is_wordpress'] = True
+                print(Fore.GREEN + f"Yes, {site} is running WordPress :) .\n")
+                
+                if '-v' in sys.argv or '--version' in sys.argv:
+                    version = get_wordpress_version(site)
+                    print(Fore.CYAN + f"WordPress version: {version}")
+                    all_results.append((site, f"WordPress Version: {version}"))
 
-        print(Fore.BLUE + f"\nChecking paths for {site}...\n")
-        try:
-            results = check_paths(site, paths, method=get_method_from_args())
-            all_results.extend(results)
-        except KeyboardInterrupt:
-            print(Fore.RED + "\nOperation interrupted by user.")
-            sys.exit(1)
+                if '-u' in sys.argv or '--users' in sys.argv:
+                    users = enumerate_users(site)
+                    print(Fore.CYAN + f"Discovered users: {', '.join(users)}")
+                    site_data['users'] = users
+
+            else:
+                print(Fore.RED + f"No, {site} does not appear to be running WordPress :( .\n")
+                all_results.append(site_data)
+                continue
+            print(Fore.BLUE + f"\nChecking paths for {site}...\n")
+            
+            try:
+                results = check_paths(site, paths, method=get_method_from_args())
+                all_results.extend(results)
+            except KeyboardInterrupt:
+                print(Fore.RED + "\nOperation interrupted by user.")
+                sys.exit(1)
+
+    except KeyboardInterrupt:
+        print(Fore.RED + "\nProcess terminated by user. Exiting gracefully.")
+        sys.exit(1)
 
     save_file(all_results)
