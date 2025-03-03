@@ -38,8 +38,6 @@ cd Wp-Explorer
 
 # Install dependencies
 pip install -r requirements.txt
-
-python3 Wp-Explorer https://example.com/
 ```
 
 <br>
@@ -51,46 +49,34 @@ python3 Wp-Explorer https://example.com/
 
 ### ⚙️Usage
 
-Run the script with the following syntax:
+Basic command:
+```bash
+python3 Wp-Explorer.py <Website> [Options]
+```
 
-`python3 Wp-Explorer.py [Website] [Options]`
-
-### Arguments
+#### Arguments
 
 Website: The URL of the target WordPress site (e.g., http://example.com).
 
 
-### Options
+#### Options
 
--h,--help:Display the help menu.
+-h, --help          Display the help menu.
+-o, --output-file   Save the results to a specified file.
+-m, --method        Specify the HTTP method to use (GET or POST). Defaults to GET.
+-l, --site-list     Provide a list of websites from a file\n")
+-v, --version       Detect WordPress version\n")
+-u, --users         Enumerate user accounts\n")
 
--o <filename>,--output-file <filename>:Save the results to a specified file.
+### 📚 Example
 
--m <method>,--method <method>:Specify the HTTP method to use (GET or POST). Defaults to GET.
+#### Basic Scan:
 
+```bash
+python3 Wp-Explorer.py http://example.com
+```
 
-## 📚 CLI Example
-
-### Basic Scan:
-
-`python3 Wp-Explorer.py http://example.com`
-
-### Scan with POST Method:
-
-`python3 Wp-Explorer.py http://example.com -m POST`
-
-### Save Results to File:
-
-`python3 Wp-Explorer.py http://example.com -o results.txt`
-
-### Display Help:
-
-`python3 Wp-Explorer.py -h`
-
-
- 
-
-## How It Works
+### 🔍How It Works
 
 1. WordPress Detection:
 
