@@ -25,14 +25,20 @@
 - Python 3.7 or higher
 - Required Python packages (see `requirements.txt`)
 
-## 🛠️ Installation
+## 🚀 Quick Sart
+
+### ⚒️Installation
 
 <br>
 
 ```bash
+# Clone the repository
 git clone https://github.com/3issam-hub/Wp-Explorer.git
 cd Wp-Explorer
+
+# Install dependencies
 pip install -r requirements.txt
+
 python3 Wp-Explorer https://example.com/
 ```
 
@@ -43,7 +49,7 @@ python3 Wp-Explorer https://example.com/
 
  
 
-## ⚙️Usage
+### ⚙️Usage
 
 Run the script with the following syntax:
 
