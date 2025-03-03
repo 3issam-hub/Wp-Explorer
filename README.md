@@ -64,9 +64,9 @@ python3 Wp-Explorer.py <Website> [Options]
 -h, --help          Display the help menu. 
 -o, --output-file   Save the results to a specified file. 
 -m, --method        Specify the HTTP method to use (GET or POST). Defaults to GET. 
--l, --site-list     Provide a list of websites from a file\n"). 
--v, --version       Detect WordPress version\n"). 
--u, --users         Enumerate user accounts\n"). 
+-l, --site-list     Provide a list of websites from a file. 
+-v, --version       Detect WordPress version. 
+-u, --users         Enumerate user accounts. 
 ```
 ### 📚 Example
 
