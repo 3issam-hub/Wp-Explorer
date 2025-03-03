@@ -20,6 +20,10 @@
 - Graceful handling of network errors and interruptions.
 - etc..
 
+## 📋 Requirements
+
+- Python 3.7 or higher
+- Required Python packages (see `requirements.txt`)
 
 ## 🛠️ Installation
 
