@@ -113,4 +113,4 @@ This project is licensed under the **[MIT License](https://github.com/aws/mit-0)
 
 Feel free to connect with **[me](https://issambeniysa.site)** for suggestions or questions!
 
-<p align="center">Made with ♥️ by **Issam Beniysa**</p>
+<p align="center">Made with ♥️ by Issam Beniysa</p>
