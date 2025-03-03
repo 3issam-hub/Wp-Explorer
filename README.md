@@ -6,6 +6,10 @@
   these paths, allowing you to identify potential issues or points of interest. Wp-Explorer supports both GET and POST HTTP methods for its requests.
 </p>
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)
+![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red)
+
 ## Features
 
 - Detects if a website is running WordPress.
