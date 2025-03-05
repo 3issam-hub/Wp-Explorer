@@ -89,7 +89,7 @@ def help():
         print(Fore.CYAN + "  -v, \t--version\tDetect WordPress version\n")
         print(Fore.CYAN + "  -u, \t--users\t\tEnumerate user accounts\n")
         print(Fore.CYAN + "  -p, --plugins\tCheck for common plugins")
-        #print(Fore.CYAN + "  -t, --themes\t\tCheck for common themes")
+        print(Fore.CYAN + "  -t, --themes\t\tCheck for common themes")
         #print(Fore.CYAN + "  -x, --xmlrpc\t\tCheck XML-RPC status")
         #print(Fore.CYAN + "  -j, --json\t\tOutput results in JSON format")
         #print(Fore.CYAN + "  --delay\t\tSet delay between requests (default 1s)\n")
@@ -116,7 +116,7 @@ def check_vuln_db(plugin_name, version):
         return None
     
     try:
-        # Prepare API request
+        
         headers = {
             "Authorization": f"Token token={api_key}",
             "Content-Type": "application/json"
@@ -124,15 +124,13 @@ def check_vuln_db(plugin_name, version):
         plugin_slug = plugin_name.lower().replace(" ", "-")
         url = f"{VULN_DB_URL}/{plugin_slug}"  # Use VULN_DB_URL here
         
-        # Make API request
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()  # Raise error for bad status codes
         
-        # Parse response
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()  
+        
         data = response.json()
         vulnerabilities = []
         
-        # Check if the plugin exists in the database
         if plugin_slug in data:
             plugin_data = data[plugin_slug]
             for vuln in plugin_data.get("vulnerabilities", []):
@@ -159,9 +157,6 @@ def check_vuln_db(plugin_name, version):
 #  Save in File   #
 #-----------------#
 
-import csv
-import json
-
 def save_file(results):
     if '-o' in sys.argv or '--output' in sys.argv:
         try:
@@ -171,30 +166,27 @@ def save_file(results):
             if output_file.endswith('.json'):
                 # Save as JSON
                 with open(output_file, 'w') as file:
-                    json.dump(results, file, indent=4)  # Pretty-print JSON
+                    json.dump(results, file, indent=4) 
                 print(Fore.GREEN + f"Results saved to {output_file} (JSON format)")
 
             elif output_file.endswith('.csv'):
                 # Save as CSV
                 with open(output_file, 'w', newline='') as file:
                     writer = csv.writer(file)
-                    # Write header
-                    writer.writerow(["Site", "WordPress", "Version", "Users", "Plugins", "Vulnerabilities", "Paths"])
-                    # Write data
-                    for site in results:
-                        writer.writerow([
-                            site['url'],
-                            'Yes' if site['is_wordpress'] else 'No',
-                            site.get('version', 'N/A'),
-                            ', '.join(site.get('users', [])),
-                            ', '.join(site.get('plugins', [])),
-                            ', '.join([vuln['title'] for vuln in site.get('vulnerabilities', [])]),
-                            ', '.join([f"{path[0]} -> {path[1]}" for path in site.get('paths', [])])
-                        ])
+                writer.writerow(["Site", "WordPress", "Version", "Users", "Plugins", "Themes", "Vulnerabilities", "Paths"])
+                writer.writerow([
+                    site['url'],
+                    'Yes' if site['is_wordpress'] else 'No',
+                    site.get('version', 'N/A'),
+                    ', '.join(site.get('users', [])),
+                    ', '.join(site.get('plugins', [])),
+                    ', '.join(site.get('themes', [])), 
+                    ', '.join([vuln['title'] for vuln in site.get('vulnerabilities', [])]),
+                    ', '.join([f"{path[0]} -> {path[1]}" for path in site.get('paths', [])])
+                ])
                 print(Fore.GREEN + f"Results saved to {output_file} (CSV format)")
 
             else:
-                # Default: Save as plain text
                 with open(output_file, 'w') as file:
                     for site in results:
                         file.write(f"\nSite: {site['url']}\n")
@@ -207,6 +199,10 @@ def save_file(results):
                             file.write("Plugins:\n")
                             for plugin in site['plugins']:
                                 file.write(f"  - {plugin}\n")
+                        if site['themes']:
+                            file.write("Themes:\n")
+                            for theme in site['themes']:
+                                file.write(f"  - {theme}\n")
                         if site.get('vulnerabilities'):
                             file.write("Vulnerabilities:\n")
                             for vuln in site['vulnerabilities']:
@@ -276,7 +272,7 @@ def enumerate_users(website):
     users = set()
     try:
         for user_id in range(1, MAX_USERS_TO_CHECK + 1):
-            time.sleep(REQUEST_DELAY)  # Use REQUEST_DELAY from config
+            time.sleep(REQUEST_DELAY) 
             url = f"{website}?author={user_id}"
             response = requests.get(url, allow_redirects=False)
             
@@ -323,15 +319,15 @@ def check_resources(website, resource_type):
                         version = version_match.group(1)
                         print(Fore.CYAN + f"Version: {version}")
 
-                # Add plugin to results
+                
                 if version:
                     plugin_entry = f"{plugin_name} ({version})"
                 else:
                     plugin_entry = plugin_name
                 resources.append(plugin_entry)
-                print(Fore.YELLOW + f"Debug: Added plugin: {plugin_entry}")  # Debug print
+                print(Fore.YELLOW + f"Debug: Added plugin: {plugin_entry}")  
 
-                # Check for vulnerabilities if version is detected
+                
                 if version and ('-p' in sys.argv or '--plugins' in sys.argv):
                     vulnerabilities = check_vuln_db(plugin_name, version)
                     if vulnerabilities:
@@ -482,6 +478,9 @@ if __name__ == "__main__":
                     plugins = check_resources(site, 'plugins')
                     site_data['plugins'] = plugins
 
+                if '-t' in sys.argv or '--themes' in sys.argv:
+                    themes = check_resources(site, 'themes')
+                    site_data['themes'] = themes
             else:
                 print(Fore.RED + emoji.emojize('\n❌ ') + f"No, {site} does not appear to be running WordPress :( .\n")
                 all_results.append(site_data)
