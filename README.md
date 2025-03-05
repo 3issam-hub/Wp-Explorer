@@ -6,6 +6,10 @@
   these paths, allowing you to identify potential issues or points of interest. Wp-Explorer supports both GET and POST HTTP methods for its requests.
 </p>
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)
+![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red)
+
 ## Features
 
 - Detects if a website is running WordPress.
@@ -16,16 +20,24 @@
 - Graceful handling of network errors and interruptions.
 - etc..
 
+## 📋 Requirements
 
-## 🛠️ Installation
+- Python 3.7 or higher
+- Required Python packages (see `requirements.txt`)
+
+## 🚀 Quick Sart
+
+### ⚒️Installation
 
 <br>
 
 ```bash
+# Clone the repository
 git clone https://github.com/3issam-hub/Wp-Explorer.git
 cd Wp-Explorer
+
+# Install dependencies
 pip install -r requirements.txt
-python3 Wp-Explorer https://example.com/
 ```
 
 <br>
@@ -35,48 +47,36 @@ python3 Wp-Explorer https://example.com/
 
  
 
-## ⚙️Usage
+### ⚙️Usage
 
-Run the script with the following syntax:
+Basic command:
+```bash
+python3 Wp-Explorer.py <Website> [Options]
+```
 
-`python3 Wp-Explorer.py [Website] [Options]`
+#### Arguments
 
-### Arguments
-
-Website: The URL of the target WordPress site (e.g., http://example.com).
-
-
-### Options
-
--h,--help:Display the help menu.
-
--o <filename>,--output-file <filename>:Save the results to a specified file.
-
--m <method>,--method <method>:Specify the HTTP method to use (GET or POST). Defaults to GET.
+**Website:** The URL of the target WordPress site (e.g., http://example.com).
 
 
-## 📚 CLI Example
+#### Options
+```
+-h, --help          Display the help menu. 
+-o, --output-file   Save the results to a specified file. 
+-m, --method        Specify the HTTP method to use (GET or POST). Defaults to GET. 
+-l, --site-list     Provide a list of websites from a file. 
+-v, --version       Detect WordPress version. 
+-u, --users         Enumerate user accounts. 
+```
+### 📚 Example
 
-### Basic Scan:
+#### Basic Scan:
 
-`python3 Wp-Explorer.py http://example.com`
+```bash
+python3 Wp-Explorer.py http://example.com
+```
 
-### Scan with POST Method:
-
-`python3 Wp-Explorer.py http://example.com -m POST`
-
-### Save Results to File:
-
-`python3 Wp-Explorer.py http://example.com -o results.txt`
-
-### Display Help:
-
-`python3 Wp-Explorer.py -h`
-
-
- 
-
-## How It Works
+### 🔍How It Works
 
 1. WordPress Detection:
 
@@ -96,20 +96,21 @@ The tool checks for key WordPress-specific paths **(wp-login.php, wp-admin/, wp-
 
 If specified with -o, results are saved to the provided filename.
 
+### 🤝Contribution
 
-### 📝 License
+Contributions are welcome! Feel free to open an issue or submit a pull request.
+
+### 📜 License
 
 This project is licensed under the **[MIT License](https://github.com/aws/mit-0)**.
 
-### Contribution
-
-Contributions are welcome! Feel free to open an issue or submit a pull request.
 
 >⚠️ Disclaimer
 >
 >This tool is intended for educational and ethical purposes only. Ensure you have proper authorization before scanning any website. Misuse of this tool may result in legal consequences. Use responsibly.
 
-## Author
 
-**Issam Beniysa**
+
 Feel free to connect with **[me](https://issambeniysa.site)** for suggestions or questions!
+
+<p align="center">Made with ♥️ by Issam Beniysa</p>
