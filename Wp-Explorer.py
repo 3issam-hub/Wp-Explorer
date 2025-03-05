@@ -13,6 +13,7 @@ import os
 import re
 import time
 import json
+import emoji
 
 #--------------------------#
 #      Configuration       #
@@ -36,6 +37,15 @@ def art():
     print(Style.BRIGHT + Style.RESET_ALL)
     print(Fore.RED + '                                                 By Issam_Beniysa\n\n\n')
 
+    print(Fore.WHITE + "="*40)
+    print(Fore.YELLOW + "WARNING: Use only with explicit authorization")
+    print(Fore.YELLOW + "Unauthorized scanning is illegal!")
+    print(Fore.WHITE + "="*40)
+
+
+
+
+
 #------------------#
 #  Help And Menu   #
 #------------------#
@@ -50,6 +60,11 @@ def help():
         print(Fore.CYAN + "  -l, \t--site-list\tProvide a list of websites from a file\n")
         print(Fore.CYAN + "  -v, \t--version\tDetect WordPress version\n")
         print(Fore.CYAN + "  -u, \t--users\t\tEnumerate user accounts\n")
+        print(Fore.CYAN + "  -p, --plugins\tCheck for common plugins")
+        #print(Fore.CYAN + "  -t, --themes\t\tCheck for common themes")
+        #print(Fore.CYAN + "  -x, --xmlrpc\t\tCheck XML-RPC status")
+        #print(Fore.CYAN + "  -j, --json\t\tOutput results in JSON format")
+        #print(Fore.CYAN + "  --delay\t\tSet delay between requests (default 1s)\n")
         sys.exit(0)
 
 #-----------------#
@@ -70,11 +85,12 @@ def save_file(results):
                         file.write(f"Version: {site['version']}\n")
                     if site['users']:
                         file.write(f"Users: {', '.join(site['users'])}\n")
+                    if site['plugins']:
+                        file.write(f"Plugins: {', '.join(site['plugins'])}\n")
                     file.write("Paths:\n")
                     for path in site['paths']:
                         file.write(f"  {path[0]} -> {path[1]}\n")
-            print(Fore.GREEN + f"Results saved to {output_file}")
-
+                print(Fore.GREEN + f"Results saved to {output_file}")
         except IndexError:
             print(Fore.RED + "Error: Missing filename for output. Use -o <filename>")
             sys.exit(1)
@@ -149,6 +165,47 @@ def enumerate_users(website):
     except Exception as e:
         print(Fore.RED + f"User enumeration error: {str(e)}")
     return list(users)
+
+#----------------------#
+#  Plugin/Theme Check  #
+#----------------------#
+
+def check_resources(website, resource_type):
+    resources = []
+    file_name = f"{resource_type}.txt"
+    
+    if not os.path.exists(file_name):
+        print(Fore.RED + f"{file_name} not found!")
+        return resources
+
+    with open(file_name, 'r') as f:
+        paths = [line.strip() for line in f if line.strip()]
+
+    for path in paths:
+        time.sleep(REQUEST_DELAY)
+        url = f"{website}{path}"
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                print(Fore.GREEN + f"Found {resource_type[:-1]}: {url}")
+                resources.append(path.split('/')[-2]) 
+                plugin_name = path.split('/')[-2]
+
+                if 'readme.txt' in path:
+                    version = re.search(r'Stable tag: (\d+\.\d+\.\d+)', response.text)
+                    if version:
+                        versioned_entry = f"{plugin_name} ({version.group(1)})"
+                        resources.append(versioned_entry)
+                        print(Fore.GREEN + f"Found {resource_type[:-1]}: {versioned_entry}")
+                        continue
+                        
+                resources.append(plugin_name)
+                print(Fore.GREEN + f"Found {resource_type[:-1]}: {plugin_name}")
+
+        except requests.RequestException:
+            continue
+            
+    return resources
 
 #--------------------#
 #  Handle Site List  #
@@ -264,32 +321,39 @@ if __name__ == "__main__":
                 'is_wordpress': False,
                 'version': None,
                 'users': [],
+                'plugins': [],
                 'paths': []
             }
-            print(Fore.BLUE + f"\nChecking if {site} is running WordPress...\n")
+            print(Fore.BLUE + emoji.emojize('\n🚀 ') +f"Checking if {site} is running WordPress...\n")
             if is_wordpress(site):
                 site_data['is_wordpress'] = True
-                print(Fore.GREEN + f"Yes, {site} is running WordPress :) .\n")
+                print(Fore.GREEN + emoji.emojize('\n✔️  ') + f"Yes, {site} is running WordPress :) .\n")
                 
                 if '-v' in sys.argv or '--version' in sys.argv:
                     version = get_wordpress_version(site)
                     print(Fore.CYAN + f"WordPress version: {version}")
-                    all_results.append((site, f"WordPress Version: {version}"))
+                    site_data['version'] = version
 
                 if '-u' in sys.argv or '--users' in sys.argv:
                     users = enumerate_users(site)
                     print(Fore.CYAN + f"Discovered users: {', '.join(users)}")
                     site_data['users'] = users
 
+                if '-p' in sys.argv or '--plugins' in sys.argv:
+                    plugins = check_resources(site, 'plugins')
+                    site_data['plugins'] = plugins
+                    print(Fore.CYAN + f"Discovered plugins: {', '.join(plugins)}")
+
             else:
-                print(Fore.RED + f"No, {site} does not appear to be running WordPress :( .\n")
+                print(Fore.RED + emoji.emojize('\n❌ ') + f"No, {site} does not appear to be running WordPress :( .\n")
                 all_results.append(site_data)
                 continue
             print(Fore.BLUE + f"\nChecking paths for {site}...\n")
             
             try:
                 results = check_paths(site, paths, method=get_method_from_args())
-                all_results.extend(results)
+                site_data['paths'] = results
+                all_results.append(site_data)
             except KeyboardInterrupt:
                 print(Fore.RED + "\nOperation interrupted by user.")
                 sys.exit(1)
