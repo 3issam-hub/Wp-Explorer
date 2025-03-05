@@ -5,6 +5,7 @@
 #--------------------------#
 
 from colorama import Fore, Style, init
+import configparser
 import requests
 import pyfiglet
 import random
@@ -13,15 +14,42 @@ import os
 import re
 import time
 import json
+import csv
 import emoji
 
-#--------------------------#
-#      Configuration       #
-#--------------------------#
+#------------------------#
+#      load config       #
+#------------------------#
+VULN_DB_URL = "https://wpvulndb.com/api/v3/plugins"
 
-# you can change the both numbers for the numbers you want
-MAX_USERS_TO_CHECK = 10
-REQUEST_DELAY = 1 
+def load_config():
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    
+    defaults = {
+        'Api': {
+            'api_key': None
+        },
+        'Settings': {
+            'max_users_to_check': '10',
+            'request_delay': '1',
+            'output_format': 'text'
+        }
+    }
+
+    for section, options in defaults.items():
+        if section not in config:
+            config[section] = {}
+        for key, value in options.items():
+            if key not in config[section]:
+                config[section][key] = value
+    
+    return config
+
+config = load_config()
+MAX_USERS_TO_CHECK = int(config['Settings']['max_users_to_check'])
+REQUEST_DELAY = float(config['Settings']['request_delay'])
+OUTPUT_FORMAT = config['Settings']['output_format']
 
 #--------#
 #  ART   #
@@ -40,7 +68,7 @@ def art():
     print(Fore.WHITE + "="*40)
     print(Fore.YELLOW + "WARNING: Use only with explicit authorization")
     print(Fore.YELLOW + "Unauthorized scanning is illegal!")
-    print(Fore.WHITE + "="*40)
+    print(Fore.WHITE + "="*40+"\n")
 
 
 
@@ -65,32 +93,129 @@ def help():
         #print(Fore.CYAN + "  -x, --xmlrpc\t\tCheck XML-RPC status")
         #print(Fore.CYAN + "  -j, --json\t\tOutput results in JSON format")
         #print(Fore.CYAN + "  --delay\t\tSet delay between requests (default 1s)\n")
+        print(Fore.CYAN + "\nConfiguration:")
+        print(Fore.CYAN + "  Create a 'config.ini' file to customize settings:")
+        print(Fore.CYAN + "  \t[Api]")
+        print(Fore.CYAN + "  \t\tapi_key = your_wpscan_api_key")
+        print(Fore.CYAN + "  \t[Settings]")
+        print(Fore.CYAN + "  \t\tmax_users_to_check = 10")
+        print(Fore.CYAN + "  \t\trequest_delay = 1")
+        print(Fore.CYAN + "  \t\toutput_format = text")
         sys.exit(0)
+
+
+#------------------#
+#  vuln db check   #
+#------------------#
+
+def check_vuln_db(plugin_name, version):
+    api_key = config['Api'].get('api_key')
+    
+    if not api_key:
+        print(Fore.YELLOW + "WPScan API key not found in config.ini. Skipping vulnerability checks.")
+        return None
+    
+    try:
+        # Prepare API request
+        headers = {
+            "Authorization": f"Token token={api_key}",
+            "Content-Type": "application/json"
+        }
+        plugin_slug = plugin_name.lower().replace(" ", "-")
+        url = f"{VULN_DB_URL}/{plugin_slug}"  # Use VULN_DB_URL here
+        
+        # Make API request
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()  # Raise error for bad status codes
+        
+        # Parse response
+        data = response.json()
+        vulnerabilities = []
+        
+        # Check if the plugin exists in the database
+        if plugin_slug in data:
+            plugin_data = data[plugin_slug]
+            for vuln in plugin_data.get("vulnerabilities", []):
+                # Check if the vulnerability affects this version
+                if version in vuln.get("fixed_in", []):
+                    continue  # Vulnerability fixed in this version
+                if version in vuln.get("affected_versions", []):
+                    vulnerabilities.append({
+                        "id": vuln.get("id"),
+                        "title": vuln.get("title"),
+                        "description": vuln.get("description"),
+                        "severity": vuln.get("severity"),
+                        "fixed_in": vuln.get("fixed_in"),
+                        "references": vuln.get("references")
+                    })
+        
+        return vulnerabilities if vulnerabilities else None
+    
+    except requests.RequestException as e:
+        print(Fore.RED + f"Error checking vulnerabilities for {plugin_name}: {str(e)}")
+        return None
 
 #-----------------#
 #  Save in File   #
 #-----------------#
 
+import csv
+import json
+
 def save_file(results):
-    if '-o' in sys.argv or '--output-file' in sys.argv:
+    if '-o' in sys.argv or '--output' in sys.argv:
         try:
-            index = sys.argv.index('-o') if '-o' in sys.argv else sys.argv.index('--output-file')
+            index = sys.argv.index('-o') if '-o' in sys.argv else sys.argv.index('--output')
             output_file = sys.argv[index + 1]
 
-            with open(output_file, 'w') as file:
-                for site in all_results:
-                    file.write(f"\nSite: {site['url']}\n")
-                    file.write(f"WordPress: {'Yes' if site['is_wordpress'] else 'No'}\n")
-                    if site['version']:
-                        file.write(f"Version: {site['version']}\n")
-                    if site['users']:
-                        file.write(f"Users: {', '.join(site['users'])}\n")
-                    if site['plugins']:
-                        file.write(f"Plugins: {', '.join(site['plugins'])}\n")
-                    file.write("Paths:\n")
-                    for path in site['paths']:
-                        file.write(f"  {path[0]} -> {path[1]}\n")
-                print(Fore.GREEN + f"Results saved to {output_file}")
+            if output_file.endswith('.json'):
+                # Save as JSON
+                with open(output_file, 'w') as file:
+                    json.dump(results, file, indent=4)  # Pretty-print JSON
+                print(Fore.GREEN + f"Results saved to {output_file} (JSON format)")
+
+            elif output_file.endswith('.csv'):
+                # Save as CSV
+                with open(output_file, 'w', newline='') as file:
+                    writer = csv.writer(file)
+                    # Write header
+                    writer.writerow(["Site", "WordPress", "Version", "Users", "Plugins", "Vulnerabilities", "Paths"])
+                    # Write data
+                    for site in results:
+                        writer.writerow([
+                            site['url'],
+                            'Yes' if site['is_wordpress'] else 'No',
+                            site.get('version', 'N/A'),
+                            ', '.join(site.get('users', [])),
+                            ', '.join(site.get('plugins', [])),
+                            ', '.join([vuln['title'] for vuln in site.get('vulnerabilities', [])]),
+                            ', '.join([f"{path[0]} -> {path[1]}" for path in site.get('paths', [])])
+                        ])
+                print(Fore.GREEN + f"Results saved to {output_file} (CSV format)")
+
+            else:
+                # Default: Save as plain text
+                with open(output_file, 'w') as file:
+                    for site in results:
+                        file.write(f"\nSite: {site['url']}\n")
+                        file.write(f"WordPress: {'Yes' if site['is_wordpress'] else 'No'}\n")
+                        if site['version']:
+                            file.write(f"Version: {site['version']}\n")
+                        if site['users']:
+                            file.write(f"Users: {', '.join(site['users'])}\n")
+                        if site['plugins']:
+                            file.write("Plugins:\n")
+                            for plugin in site['plugins']:
+                                file.write(f"  - {plugin}\n")
+                        if site.get('vulnerabilities'):
+                            file.write("Vulnerabilities:\n")
+                            for vuln in site['vulnerabilities']:
+                                file.write(f"  - {vuln['title']} (Severity: {vuln['severity']})\n")
+                        file.write("Paths:\n")
+                        for path in site['paths']:
+                            file.write(f"  {path[0]} -> {path[1]}\n")
+                print(Fore.GREEN + f"Results saved to {output_file} (Text format)")
+
         except IndexError:
             print(Fore.RED + "Error: Missing filename for output. Use -o <filename>")
             sys.exit(1)
@@ -151,7 +276,7 @@ def enumerate_users(website):
     users = set()
     try:
         for user_id in range(1, MAX_USERS_TO_CHECK + 1):
-            time.sleep(REQUEST_DELAY)
+            time.sleep(REQUEST_DELAY)  # Use REQUEST_DELAY from config
             url = f"{website}?author={user_id}"
             response = requests.get(url, allow_redirects=False)
             
@@ -187,20 +312,34 @@ def check_resources(website, resource_type):
         try:
             response = requests.get(url)
             if response.status_code == 200:
-                print(Fore.GREEN + f"Found {resource_type[:-1]}: {url}")
-                resources.append(path.split('/')[-2]) 
                 plugin_name = path.split('/')[-2]
+                print(Fore.GREEN + f"\nFound {resource_type[:-1]}: {plugin_name}")
 
+                # Check for version in readme.txt
+                version = None
                 if 'readme.txt' in path:
-                    version = re.search(r'Stable tag: (\d+\.\d+\.\d+)', response.text)
-                    if version:
-                        versioned_entry = f"{plugin_name} ({version.group(1)})"
-                        resources.append(versioned_entry)
-                        print(Fore.GREEN + f"Found {resource_type[:-1]}: {versioned_entry}")
-                        continue
-                        
-                resources.append(plugin_name)
-                print(Fore.GREEN + f"Found {resource_type[:-1]}: {plugin_name}")
+                    version_match = re.search(r'Stable tag: (\d+\.\d+\.\d+)', response.text)
+                    if version_match:
+                        version = version_match.group(1)
+                        print(Fore.CYAN + f"Version: {version}")
+
+                # Add plugin to results
+                if version:
+                    plugin_entry = f"{plugin_name} ({version})"
+                else:
+                    plugin_entry = plugin_name
+                resources.append(plugin_entry)
+                print(Fore.YELLOW + f"Debug: Added plugin: {plugin_entry}")  # Debug print
+
+                # Check for vulnerabilities if version is detected
+                if version and ('-p' in sys.argv or '--plugins' in sys.argv):
+                    vulnerabilities = check_vuln_db(plugin_name, version)
+                    if vulnerabilities:
+                        print(Fore.RED + f"Vulnerabilities found in {plugin_name} {version}:")
+                        for vuln in vulnerabilities:
+                            print(Fore.RED + f"  - {vuln['title']} (Severity: {vuln['severity']})")
+                    else:
+                        print(Fore.GREEN + f"No vulnerabilities found in {plugin_name} {version}")
 
         except requests.RequestException:
             continue
@@ -342,24 +481,22 @@ if __name__ == "__main__":
                 if '-p' in sys.argv or '--plugins' in sys.argv:
                     plugins = check_resources(site, 'plugins')
                     site_data['plugins'] = plugins
-                    print(Fore.CYAN + f"Discovered plugins: {', '.join(plugins)}")
 
             else:
                 print(Fore.RED + emoji.emojize('\n❌ ') + f"No, {site} does not appear to be running WordPress :( .\n")
                 all_results.append(site_data)
                 continue
+
             print(Fore.BLUE + f"\nChecking paths for {site}...\n")
-            
-            try:
-                results = check_paths(site, paths, method=get_method_from_args())
-                site_data['paths'] = results
-                all_results.append(site_data)
-            except KeyboardInterrupt:
-                print(Fore.RED + "\nOperation interrupted by user.")
-                sys.exit(1)
+            results = check_paths(site, paths, method=get_method_from_args())
+            site_data['paths'] = results
+            all_results.append(site_data)
 
     except KeyboardInterrupt:
         print(Fore.RED + "\nProcess terminated by user. Exiting gracefully.")
+        save_file(all_results)
         sys.exit(1)
+
+    print(Fore.YELLOW + f"Debug: All Results: {json.dumps(all_results, indent=2)}")
 
     save_file(all_results)
