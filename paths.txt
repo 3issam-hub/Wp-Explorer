@@ -11,6 +11,9 @@ readme.html
 tox.ini
 wordfence-waf.php
 wp-activate.php
+xmlrpc.php
+wp-config.php
+wp-config.php.bak
 wp-admin/
 wp-admin/about.php
 wp-admin/admin-ajax.php
@@ -589,6 +592,7 @@ wp-config.php.BAK
 wp-config.php.stage
 wp-config-sample.php
 wp-content/
+wp-content/uploads/
 wp-content/debug.log
 wp-content/index.php
 wp-content/plugins/
