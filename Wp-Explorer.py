@@ -51,6 +51,8 @@ MAX_USERS_TO_CHECK = int(config['Settings']['max_users_to_check'])
 REQUEST_DELAY = float(config['Settings']['request_delay'])
 OUTPUT_FORMAT = config['Settings']['output_format']
 
+
+
 #--------#
 #  ART   #
 #--------#
@@ -72,7 +74,18 @@ def art():
 
 
 
+#----------#
+#  Delay   #
+#----------#
 
+if '--delay' in sys.argv:
+    try:
+        index = sys.argv.index('--delay')
+        REQUEST_DELAY = float(sys.argv[index + 1])
+        print(Fore.CYAN + f"Request delay set to {REQUEST_DELAY} seconds")
+    except (IndexError, ValueError):
+        print(Fore.RED + "Error: --delay requires a numeric value (e.g., --delay 2.5)")
+        sys.exit(1)
 
 #------------------#
 #  Help And Menu   #
@@ -82,21 +95,20 @@ def help():
     if '-h' in sys.argv or '--help' in sys.argv:
         print(Fore.CYAN + "{Usage} : python3 Wp_Explorer.py [Website] [Options] \n\n")
         print(Fore.CYAN + "{Options} : \n")
-        print(Fore.CYAN + "  -h, \t--help\t\tShow this help message and exit\n")
-        print(Fore.CYAN + "  -o, \t--output\tTo save result in a specific file\n")
-        print(Fore.CYAN + "  -m, \t--method\tTo Specify the HTTP method to use (GET or POST). Default is GET\n")
-        print(Fore.CYAN + "  -l, \t--site-list\tProvide a list of websites from a file\n")
-        print(Fore.CYAN + "  -v, \t--version\tDetect WordPress version\n")
-        print(Fore.CYAN + "  -u, \t--users\t\tEnumerate user accounts\n")
-        print(Fore.CYAN + "  -p, --plugins\tCheck for common plugins")
-        print(Fore.CYAN + "  -t, --themes\t\tCheck for common themes")
-        #print(Fore.CYAN + "  -x, --xmlrpc\t\tCheck XML-RPC status")
-        #print(Fore.CYAN + "  -j, --json\t\tOutput results in JSON format")
-        #print(Fore.CYAN + "  --delay\t\tSet delay between requests (default 1s)\n")
-        print(Fore.CYAN + "\nConfiguration:")
-        print(Fore.CYAN + "  Create a 'config.ini' file to customize settings:")
+        print(Fore.CYAN + "  -h, \t--help\t\t\tShow this help message and exit\n")
+        print(Fore.CYAN + "  -o, \t--output\t\tTo save result in a specific file\n")
+        print(Fore.CYAN + "  -m, \t--method\t\tTo Specify the HTTP method to use (GET or POST). Default is GET\n")
+        print(Fore.CYAN + "  -l, \t--site-list\t\tProvide a list of websites from a file\n")
+        print(Fore.CYAN + "  -v, \t--version\t\tDetect WordPress version\n")
+        print(Fore.CYAN + "  -u, \t--users\t\t\tEnumerate user accounts\n")
+        print(Fore.CYAN + "  -p, \t--plugins\t\tCheck for common plugins\n")
+        print(Fore.CYAN + "  -t, \t--themes\t\tCheck for common themes\n")
+        print(Fore.CYAN + "  -x, \t--xmlrpc\t\tCheck XML-RPC status\n")
+        print(Fore.CYAN + "  \t--delay\t\t\tSet delay between requests (default 1s)\n")
+        print(Fore.CYAN + "\nConfiguration:\n")
+        print(Fore.CYAN + "  Create a 'config.ini' file to customize settings:\n")
         print(Fore.CYAN + "  \t[Api]")
-        print(Fore.CYAN + "  \t\tapi_key = your_wpscan_api_key")
+        print(Fore.CYAN + "  \t\tapi_key = your_wpscan_api_key\n")
         print(Fore.CYAN + "  \t[Settings]")
         print(Fore.CYAN + "  \t\tmax_users_to_check = 10")
         print(Fore.CYAN + "  \t\trequest_delay = 1")
@@ -122,7 +134,7 @@ def check_vuln_db(plugin_name, version):
             "Content-Type": "application/json"
         }
         plugin_slug = plugin_name.lower().replace(" ", "-")
-        url = f"{VULN_DB_URL}/{plugin_slug}"  # Use VULN_DB_URL here
+        url = f"{VULN_DB_URL}/{plugin_slug}"  
         
         
         response = requests.get(url, headers=headers, timeout=10)
@@ -134,9 +146,9 @@ def check_vuln_db(plugin_name, version):
         if plugin_slug in data:
             plugin_data = data[plugin_slug]
             for vuln in plugin_data.get("vulnerabilities", []):
-                # Check if the vulnerability affects this version
+                
                 if version in vuln.get("fixed_in", []):
-                    continue  # Vulnerability fixed in this version
+                    continue  
                 if version in vuln.get("affected_versions", []):
                     vulnerabilities.append({
                         "id": vuln.get("id"),
@@ -156,7 +168,6 @@ def check_vuln_db(plugin_name, version):
 #-----------------#
 #  Save in File   #
 #-----------------#
-
 def save_file(results):
     if '-o' in sys.argv or '--output' in sys.argv:
         try:
@@ -164,29 +175,37 @@ def save_file(results):
             output_file = sys.argv[index + 1]
 
             if output_file.endswith('.json'):
-                # Save as JSON
+                
                 with open(output_file, 'w') as file:
-                    json.dump(results, file, indent=4) 
+                    json.dump(results, file, indent=4)
                 print(Fore.GREEN + f"Results saved to {output_file} (JSON format)")
 
             elif output_file.endswith('.csv'):
-                # Save as CSV
+                
                 with open(output_file, 'w', newline='') as file:
                     writer = csv.writer(file)
-                writer.writerow(["Site", "WordPress", "Version", "Users", "Plugins", "Themes", "Vulnerabilities", "Paths"])
-                writer.writerow([
-                    site['url'],
-                    'Yes' if site['is_wordpress'] else 'No',
-                    site.get('version', 'N/A'),
-                    ', '.join(site.get('users', [])),
-                    ', '.join(site.get('plugins', [])),
-                    ', '.join(site.get('themes', [])), 
-                    ', '.join([vuln['title'] for vuln in site.get('vulnerabilities', [])]),
-                    ', '.join([f"{path[0]} -> {path[1]}" for path in site.get('paths', [])])
-                ])
+                    
+                    writer.writerow([
+                        "Site", "WordPress", "Version", "Users", "Plugins", "Themes", 
+                        "Vulnerabilities", "XML-RPC Status", "Paths"
+                    ])
+                    
+                    for site in results:
+                        writer.writerow([
+                            site['url'],
+                            'Yes' if site['is_wordpress'] else 'No',
+                            site.get('version', 'N/A'),
+                            ', '.join(site.get('users', [])),
+                            ', '.join(site.get('plugins', [])),
+                            ', '.join(site.get('themes', [])),
+                            ', '.join([vuln['title'] for vuln in site.get('vulnerabilities', [])]),
+                            'Enabled' if site.get('xmlrpc') else 'Disabled',  
+                            ', '.join([f"{path[0]} -> {path[1]}" for path in site.get('paths', [])])
+                        ])
                 print(Fore.GREEN + f"Results saved to {output_file} (CSV format)")
 
             else:
+                
                 with open(output_file, 'w') as file:
                     for site in results:
                         file.write(f"\nSite: {site['url']}\n")
@@ -207,6 +226,8 @@ def save_file(results):
                             file.write("Vulnerabilities:\n")
                             for vuln in site['vulnerabilities']:
                                 file.write(f"  - {vuln['title']} (Severity: {vuln['severity']})\n")
+                        if site.get('xmlrpc') is not None:  
+                            file.write(f"XML-RPC: {'Enabled' if site['xmlrpc'] else 'Disabled'}\n")
                         file.write("Paths:\n")
                         for path in site['paths']:
                             file.write(f"  {path[0]} -> {path[1]}\n")
@@ -311,7 +332,7 @@ def check_resources(website, resource_type):
                 plugin_name = path.split('/')[-2]
                 print(Fore.GREEN + f"\nFound {resource_type[:-1]}: {plugin_name}")
 
-                # Check for version in readme.txt
+                
                 version = None
                 if 'readme.txt' in path:
                     version_match = re.search(r'Stable tag: (\d+\.\d+\.\d+)', response.text)
@@ -341,6 +362,21 @@ def check_resources(website, resource_type):
             continue
             
     return resources
+
+#------------------#
+#  XML-RPC Check   #
+#------------------#
+def check_xmlrpc(website):
+    if not website.endswith('/'):
+        website +='/'
+    url = f"{website}xmlrpc.php"
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200 and "XML-RPC server accepts POST requests only" in response.text:
+            return (True, "XML-RPC enabled (potential security risk)")
+        return (False, "XML-RPC not enabled")
+    except requests.RequestException:
+        return (False, "Error checking XML-RPC")
 
 #--------------------#
 #  Handle Site List  #
@@ -481,6 +517,19 @@ if __name__ == "__main__":
                 if '-t' in sys.argv or '--themes' in sys.argv:
                     themes = check_resources(site, 'themes')
                     site_data['themes'] = themes
+                
+                if '-x' in sys.argv or '--xmlrpc' in sys.argv:
+                    xmlrpc_status = check_xmlrpc(site)
+                    print(Fore.YELLOW + xmlrpc_status[1])
+                    site_data['xmlrpc'] = xmlrpc_status[0]
+
+                print(Fore.BLUE + f"\nChecking paths for {site}...\n")
+                paths = handle_site_list('paths.txt')  
+                path_results = check_paths(site, paths, get_method_from_args())
+                site_data['paths'] = path_results
+                
+                all_results.append(site_data)
+
             else:
                 print(Fore.RED + emoji.emojize('\n❌ ') + f"No, {site} does not appear to be running WordPress :( .\n")
                 all_results.append(site_data)
