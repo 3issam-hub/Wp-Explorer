@@ -134,7 +134,7 @@ Contributions welcome! Follow these steps:
 
 ## 📜 License
 
-This project is licensed under the **GNU General Public License v3.0** - see [LICENSE](LICENSE) for details.
+This project is licensed under the **GNU General Public License v3.0** - see [LICENSE](https://www.gnu.org/licenses/gpl-3.0) for details.
 
 ## ⚠️ Disclaimer
 
