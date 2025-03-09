@@ -1582,6 +1582,7 @@ wp-json/?rest_route=/wp/v2/users/
 wp-json/?rest_route=/wp/v2/users/1
 wp-json/wp/v2/posts
 wp-json/wp/v2/users
+_wpeprivate/config.json
 wp-links-opml.php
 wp-load.php
 wp-login.php
