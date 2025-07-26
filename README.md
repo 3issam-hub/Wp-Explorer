@@ -132,13 +132,13 @@ Contributions welcome! Follow these steps:
 4. Push to branch (`git push origin feature/improvement`)
 5. Open Pull Request
 
-## 📜 License
-
-This project is licensed under the **GNU General Public License v3.0** - see [LICENSE](https://www.gnu.org/licenses/gpl-3.0) for details.
-
 ## ⚠️ Disclaimer
 
 > This tool is intended for **authorized security testing** and **educational purposes only**. Unauthorized use against websites without explicit permission is illegal. The developers assume no liability for misuse of this software.
+
+## 📜 License
+
+This project is licensed under the **GNU General Public License v3.0** - see [LICENSE](https://www.gnu.org/licenses/gpl-3.0) for details.
 
 ---
 
